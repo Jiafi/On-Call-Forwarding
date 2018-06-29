@@ -15,28 +15,33 @@ schedules = get_schedules()
 app = Flask(__name__)
 @app.route("/answer", methods = ['GET','POST'])
 def get_team():
+    intro = 'Welcome to the Integrichain on call hotline. '
     command = ''
     for i in range(len(schedules)):
         command += 'Press %d for %s.   ' %(i+1,schedules[i])
    # command = "Press 1 for S.R.E.. Press 2 for Nick"
+    print command
     response = VoiceResponse()
     gather = Gather(
             num_digits=1,
             action='/forward',
             method='POST'
             )
-    gather.say(command)
+    gather.say(intro, voice = 'alice')
+    gather.say(command, voice='alice')
     response.append(gather)
     return (str(response), 200)
 
 @app.route('/forward', methods=['GET','POST'])
 def hello():
     """ REspond to incoming phone calls with a brief message. """
-    team = int(request.values.get('Digits', None))
+    team = int(request.values.get('Digits', None)) 
+    print type(team)
+    print team
     resp = VoiceResponse()
     
     # Read a message aloud to the caller
-    resp.say("You pressed the number for  %s. We will forward you now." % (schedules[team-1]), voice = 'bob') 
+    resp.say("You pressed the number for  %s. We will forward you now." % (schedules[team-1]), voice = 'alice') 
     resp.dial(get_oncall(schedules[team-1]))
     return str(resp)
 '''
